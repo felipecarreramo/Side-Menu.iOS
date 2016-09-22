@@ -6,17 +6,18 @@
 
 import QuartzCore
 
-private func SquareAroundCircle(center: CGPoint, radius: CGFloat) -> CGRect {
+
+private func SquareAroundCircle(_ center: CGPoint, radius: CGFloat) -> CGRect {
     assert(0 <= radius, "radius must be a positive value")
-    return CGRectInset(CGRect(origin: center, size: CGSizeZero), -radius, -radius)
+    return CGRect(origin: center, size: CGSize.zero).insetBy(dx: -radius, dy: -radius)
 }
 
 class CircularRevealAnimator {
     var completion: () -> Void = {}
 
-    private let layer: CALayer
-    private let mask: CAShapeLayer
-    private let animation: CABasicAnimation
+    fileprivate let layer: CALayer
+    fileprivate let mask: CAShapeLayer
+    fileprivate let animation: CABasicAnimation
 
     var duration: CFTimeInterval {
         get { return animation.duration }
@@ -29,8 +30,8 @@ class CircularRevealAnimator {
     }
 
     init(layer: CALayer, center: CGPoint, startRadius: CGFloat, endRadius: CGFloat) {
-        let startPath = CGPathCreateWithEllipseInRect(SquareAroundCircle(center, radius: startRadius), nil)
-        let endPath = CGPathCreateWithEllipseInRect(SquareAroundCircle(center, radius: endRadius), nil)
+        let startPath = CGPath(ellipseIn: SquareAroundCircle(center, radius: startRadius), transform: nil)
+        let endPath = CGPath(ellipseIn: SquareAroundCircle(center, radius: endRadius), transform: nil)
 
         self.layer = layer
 
@@ -44,12 +45,12 @@ class CircularRevealAnimator {
             layer.mask = nil
             self.completion()
             self.animation.delegate = nil
-        }
+        } as? CAAnimationDelegate
     }
 
     func start() {
         layer.mask = mask
         mask.frame = layer.bounds
-        mask.addAnimation(animation, forKey: "reveal")
+        mask.add(animation, forKey: "reveal")
     }
 }
